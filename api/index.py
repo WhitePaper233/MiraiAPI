@@ -26,20 +26,23 @@ def bangumi(mid: int):
             break
         for bangumi in resp_data['data']['list']:
             bangumi_list.append({
+                'season_id': bangumi['season_id'],
+                'follow_status': bangumi['"follow_status'],
                 'title': bangumi['title'],
                 'url': bangumi['url'],
-                'cover': f"https://mirai-api.vercel.app/proxy/bangumi/cover/{bangumi['cover'].split('/')[-1]}",
+                'cover': bangumi['cover'].split('/')[-1],
                 'total_count': bangumi['total_count'],
                 'areas': bangumi['areas'][0]['name'],
                 'desc': bangumi['summary'],
                 'coin': bangumi['stat']['coin'],
                 'danmaku': bangumi['stat']['danmaku'],
                 'view': bangumi['stat']['view'],
+                'score': bangumi['rating']['score'],
                 'series_follow': bangumi['stat']['series_follow'],
             })
         page += 1
     resp = jsonify({'code': 0, 'data': bangumi_list})
-    resp.headers['Access-Control-Allow-Origin'] = '*'  
+    resp.headers['Access-Control-Allow-Origin'] = '*'
     return resp, r.status_code
 
 
@@ -56,5 +59,5 @@ def cover(id: str):
     if r.status_code != 200:
         return None, r.status_code
     resp = send_file(BytesIO(r.content), mimetype=mime_type)
-    resp.headers['Access-Control-Allow-Origin'] = '*'  
+    resp.headers['Access-Control-Allow-Origin'] = '*'
     return resp, r.status_code
