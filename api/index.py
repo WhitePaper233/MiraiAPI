@@ -1,9 +1,11 @@
-import requests
-from flask import Flask, jsonify, send_file
 from io import BytesIO
 
-app = Flask(__name__)
+import requests
+from flask import Flask, jsonify, send_file
+from flask_cors import CORS
 
+app = Flask(__name__)
+CORS(app)
 
 # 查询用户番剧数据
 @app.route('/api/v1/bangumi/<int:mid>', methods=['GET'])
@@ -59,7 +61,6 @@ def bangumi(mid: int):
                 })
         page += 1
     resp = jsonify({'code': 0, 'data': bangumi_list})
-    resp.headers['Access-Control-Allow-Origin'] = '*'
     return resp, r.status_code
 
 
@@ -76,5 +77,4 @@ def cover(id: str):
     if r.status_code != 200:
         return None, r.status_code
     resp = send_file(BytesIO(r.content), mimetype=mime_type)
-    resp.headers['Access-Control-Allow-Origin'] = '*'
     return resp, r.status_code
