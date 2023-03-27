@@ -25,21 +25,38 @@ def bangumi(mid: int):
         if not resp_data['data']['list']:
             break
         for bangumi in resp_data['data']['list']:
-            bangumi_list.append({
-                'season_id': bangumi['season_id'],
-                'follow_status': bangumi['follow_status'],
-                'title': bangumi['title'],
-                'url': bangumi['url'],
-                'cover': bangumi['cover'].split('/')[-1],
-                'total_count': bangumi['total_count'],
-                'areas': bangumi['areas'][0]['name'],
-                'desc': bangumi['summary'],
-                'coin': bangumi['stat']['coin'],
-                'danmaku': bangumi['stat']['danmaku'],
-                'view': bangumi['stat']['view'],
-                'score': bangumi['rating']['score'],
-                'series_follow': bangumi['stat']['series_follow'],
-            })
+            try:
+                bangumi_list.append({
+                    'season_id': bangumi['season_id'],
+                    'follow_status': bangumi['follow_status'],
+                    'title': bangumi['title'],
+                    'url': bangumi['url'],
+                    'cover': bangumi['cover'],
+                    'total_count': bangumi['total_count'],
+                    'areas': bangumi['areas'][0]['name'],
+                    'desc': bangumi['summary'],
+                    'coin': bangumi['stat']['coin'],
+                    'danmaku': bangumi['stat']['danmaku'],
+                    'view': bangumi['stat']['view'],
+                    'score': str(bangumi['rating']['score']),
+                    'series_follow': bangumi['stat']['series_follow'],
+                })
+            except KeyError:
+                bangumi_list.append({
+                    'season_id': bangumi['season_id'],
+                    'follow_status': bangumi['follow_status'],
+                    'title': bangumi['title'],
+                    'url': bangumi['url'],
+                    'cover': bangumi['cover'],
+                    'total_count': bangumi['total_count'],
+                    'areas': bangumi['areas'][0]['name'],
+                    'desc': bangumi['summary'],
+                    'coin': bangumi['stat']['coin'],
+                    'danmaku': bangumi['stat']['danmaku'],
+                    'view': bangumi['stat']['view'],
+                    'score': '',
+                    'series_follow': bangumi['stat']['series_follow'],
+                })
         page += 1
     resp = jsonify({'code': 0, 'data': bangumi_list})
     resp.headers['Access-Control-Allow-Origin'] = '*'
