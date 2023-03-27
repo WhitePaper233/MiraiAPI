@@ -5,10 +5,10 @@ from io import BytesIO
 app = Flask(__name__)
 
 
+# 查询用户番剧数据
 @app.route('/api/v1/bangumi/<int:mid>', methods=['GET'])
 def bangumi(mid: int):
     bangumi_list = []
-
     page = 1
     while True:
         r = requests.get(
@@ -19,14 +19,16 @@ def bangumi(mid: int):
                 'ps': 30,
             }
         )
-        if not r.json()['data']['list']:
+        resp_data = r.json()
+        if resp_data['code']:
+            return jsonify({'code': resp_data['code']}), r.status_code
+        if not resp_data['data']['list']:
             break
-
-        for bangumi in r.json()['data']['list']:
+        for bangumi in resp_data['data']['list']:
             bangumi_list.append({
                 'title': bangumi['title'],
                 'url': bangumi['url'],
-                'cover': f"https://mirai-api.vercel.app/proxy/cover/{bangumi['cover'].split('/')[-1]}",
+                'cover': f"https://mirai-api.vercel.app/proxy/bangumi/cover/{bangumi['cover'].split('/')[-1]}",
                 'total_count': bangumi['total_count'],
                 'areas': bangumi['areas'][0]['name'],
                 'desc': bangumi['summary'],
@@ -35,13 +37,14 @@ def bangumi(mid: int):
                 'view': bangumi['stat']['view'],
                 'series_follow': bangumi['stat']['series_follow'],
             })
-
         page += 1
+    resp = jsonify({'code': 0, 'data': bangumi_list})
+    resp.headers['Access-Control-Allow-Origin'] = '*'  
+    return resp, r.status_code
 
-    return jsonify(bangumi_list)
 
-
-@app.route('/proxy/cover/<string:id>')
+# 图片防盗链代理
+@app.route('/proxy/bangumi/cover/<string:id>')
 def cover(id: str):
     mime_type = ''
     if id.endswith('.jpg') or id.endswith('.jpeg'):
@@ -49,7 +52,9 @@ def cover(id: str):
     elif id.endswith('.png'):
         mime_type = 'image/png'
         id = f'/image/{id}'
-
     r = requests.get(f'http://i0.hdslb.com/bfs/bangumi/{id}', stream=True)
-
-    return send_file(BytesIO(r.content), mimetype=mime_type)
+    if r.status_code != 200:
+        return None, r.status_code
+    resp = send_file(BytesIO(r.content), mimetype=mime_type)
+    resp.headers['Access-Control-Allow-Origin'] = '*'  
+    return resp, r.status_code
