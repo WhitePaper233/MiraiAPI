@@ -27,7 +27,7 @@ def bangumi(mid: int):
         for bangumi in resp_data['data']['list']:
             bangumi_list.append({
                 'season_id': bangumi['season_id'],
-                'follow_status': bangumi['"follow_status'],
+                'follow_status': bangumi['follow_status'],
                 'title': bangumi['title'],
                 'url': bangumi['url'],
                 'cover': bangumi['cover'].split('/')[-1],
